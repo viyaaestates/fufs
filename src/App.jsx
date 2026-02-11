@@ -7,17 +7,19 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight, MapPin, Phone, Mail, Clock, Plus } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 // --- Data & Content Configuration ---
 
 const NAV_LINKS = [
   { name: 'Home', href: '#home' },
   { name: 'About Us', href: '#about' },
-  { name: 'Our Projects', href: '#projects' },
   { name: 'The Viyaa Edge', href: '#edge' },
   { name: 'Services', href: '#services' },
-  { name: 'Partner With Us', href: '#partner' },
+  { name: 'Our Projects', href: '#projects' },
+  { name: 'Founder\'s Note', href: '#founders' },
   { name: 'Enquire Now', href: '#contact' },
+  { name: 'Partner With Us', href: '#partner' },
 ];
 
 const SERVICES = [
@@ -49,25 +51,9 @@ const PROJECTS = [
     id: 1,
     title: "Viyaa Shantam",
     location: "Goa",
-    year: "2025",
+    year: "2026",
     image: "/pictures/seq4.jpeg",
     specs: "4 Beds • 6 Baths • 450m²"
-  },
-  {
-    id: 2,
-    title: "Dune Residence",
-    location: "Desert Ridge, Arizona",
-    year: "2023",
-    image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop",
-    specs: "3 Beds • 4 Baths • 320m²"
-  },
-  {
-    id: 3,
-    title: "The Glass Pavilion",
-    location: "Beverly Hills, CA",
-    year: "2025",
-    image: "https://images.unsplash.com/photo-1600596542815-2495db98dada?q=80&w=1000&auto=format&fit=crop",
-    specs: "5 Beds • 7 Baths • 890m²"
   }
 ];
 
@@ -92,6 +78,13 @@ const QUOTE_POSITIONS = {
     mobile: '2.5rem',     // w-10 h-10 (40px)
     desktop: '3.5rem',    // w-14 h-14 (56px)
   }
+};
+
+// --- Navbar Position Configuration (Edit these values to adjust navbar alignment) ---
+const NAVBAR_POSITIONS = {
+  logoMarginLeft: '-0.5rem',      // Adjust logo position (e.g., '2rem', '-1rem')
+  menuMarginLeft: '10rem',      // Adjust menu items position (e.g., '5rem', '2rem')
+  gapBetweenLogoAndMenu: '2rem', // Gap between logo and menu (e.g., '4rem', '2rem')
 };
 
 // --- Animation Variants ---
@@ -152,6 +145,55 @@ const Hotspot = ({ top, left, title, detail }) => {
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showEnquireModal, setShowEnquireModal] = useState(false);
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form submission handlers
+  const handleEnquireSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      await emailjs.sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ENQUIRE,
+        e.target,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      alert('Thank you! Your enquiry has been submitted successfully.');
+      setShowEnquireModal(false);
+      e.target.reset();
+    } catch (error) {
+      alert('Sorry, something went wrong. Please try again or contact us directly.');
+      console.error('EmailJS Error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePartnerSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      await emailjs.sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID_PARTNER,
+        e.target,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      alert('Thank you! Your partnership request has been submitted successfully.');
+      setShowPartnerModal(false);
+      e.target.reset();
+    } catch (error) {
+      alert('Sorry, something went wrong. Please try again or contact us directly.');
+      console.error('EmailJS Error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -166,9 +208,9 @@ export default function App() {
       
       {/* --- Navigation --- */}
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-stone-50/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'}`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-stone-200/50 rounded-full transition-colors">
+        <div className="max-w-7xl mx-auto px-6 flex items-center">
+          <div className="flex items-center" style={{ marginLeft: NAVBAR_POSITIONS.logoMarginLeft }}>
+            <button className="hidden p-2 hover:bg-stone-200/50 rounded-full transition-colors">
               <Menu className={`w-5 h-5 ${isScrolled ? 'text-stone-800' : 'text-white'}`} />
             </button>
             <div className="flex items-center relative">
@@ -181,7 +223,7 @@ export default function App() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-8 flex-1" style={{ marginLeft: NAVBAR_POSITIONS.menuMarginLeft }}>
             {NAV_LINKS.map((link) => (
               <a
                 key={link.name}
@@ -193,15 +235,8 @@ export default function App() {
             ))}
           </div>
 
-          <div className="flex items-center gap-4">
-            
-            <button className={`text-xs font-bold px-5 py-2 rounded-full border transition-all ${isScrolled ? 'border-stone-800 text-stone-800 hover:bg-stone-800 hover:text-white' : 'border-white text-white hover:bg-white hover:text-stone-900'}`}>
-              LET'S TALK
-            </button>
-          </div>
-
           {/* Mobile Toggle */}
-          <button className="md:hidden text-stone-800" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <button className="md:hidden ml-auto text-stone-800" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X /> : <Menu className={isScrolled ? 'text-stone-900' : 'text-white'} />}
           </button>
         </div>
@@ -263,6 +298,7 @@ export default function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
+            onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
             className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity"
           >
             SCROLL DOWN
@@ -321,17 +357,88 @@ export default function App() {
             >
               <div className="relative aspect-[3/4] overflow-hidden group cursor-pointer">
                 <img 
-                  src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=800&auto=format&fit=crop" 
-                  alt="Villa Detail" 
+                  src="/pictures/about us.jpeg" 
+                  alt="About Us" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute bottom-4 left-4">
-                  <p className="text-[10px] text-white font-bold uppercase tracking-widest">The Solana Villa</p>
-                  <p className="text-[10px] text-white/70">©2024</p>
+                  <p className="text-[10px] text-white font-bold uppercase tracking-widest">Viyaa Shantanam</p>
+                  <p className="text-[10px] text-white/70">©Viyaa Estates</p>
                 </div>
               </div>
             </motion.div>
           </div>
+        </div>
+        
+        {/* Scroll Down Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => document.getElementById('edge').scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity text-stone-800"
+          >
+            SCROLL DOWN
+            <ArrowRight className="w-4 h-4 rotate-90" />
+          </button>
+        </div>
+      </section>
+
+      {/* --- The Viyaa Edge / Pillars --- */}
+      <section id="edge" className="bg-stone-100 py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div>
+              <SectionLabel text="The Viyaa Edge" />
+              <h2 className="text-4xl md:text-6xl font-light leading-tight mb-8">
+                Built on Four <br/>
+                <span className="font-serif italic">Immovable Pillars.</span>
+              </h2>
+              <div className="space-y-6 font-serif">
+                {[
+                  { title: 'Harmonious Design', desc: 'Architecture that is rooted in its surroundings—responding to climate, landscape, and context. Calm, intuitive, and timeless, our designs belong naturally to the place they stand in.' },
+                  { title: 'Functional Spaces', desc: 'Spaces planned with clarity and purpose—well-proportioned, practical, and naturally comfortable—supporting effortless day-to-day living without compromise.' },
+                  { title: 'Material Honesty', desc: 'An authentic approach to materials. Concrete is expressed as concrete. Wood is used as wood. Every finish is chosen for its natural character, durability, and timeless appeal—never imitation.' },
+                  { title: 'Integrity', desc: 'Integrity underpins every stage of our process—from land procurement and legal diligence to design development and on-ground execution.' }
+                ].map((pillar, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex gap-4"
+                  >
+                    <div className="text-xl font-serif italic text-stone-300">0{i+1}</div>
+                    <div>
+                      <h4 className="font-bold text-stone-900 mb-1">{pillar.title}</h4>
+                      <p className="text-sm text-stone-600 leading-relaxed text-justify">{pillar.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="relative">
+               <img 
+                 src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop" 
+                 alt="Modern Interior"
+                 className="w-full shadow-2xl"
+               />
+               <div className="absolute -bottom-8 -left-8 bg-white p-8 shadow-xl max-w-xs hidden md:block">
+                 <p className="font-serif text-xl italic text-stone-800 mb-2">"True luxury lives at the intersection of nature, thoughtful design, and human connection."</p>
+                 <p className="text-xs font-bold uppercase tracking-widest text-stone-400"></p>
+               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll Down Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity text-stone-800"
+          >
+            SCROLL DOWN
+            <ArrowRight className="w-4 h-4 rotate-90" />
+          </button>
         </div>
       </section>
 
@@ -390,12 +497,23 @@ export default function App() {
           </div>
 
         </div>
+        
+        {/* Scroll Down Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity text-white"
+          >
+            SCROLL DOWN
+            <ArrowRight className="w-4 h-4 rotate-90" />
+          </button>
+        </div>
       </section>
       {/* --- Projects Grid --- */}
       <section id="projects" className="py-24 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-16">
           <div>
-            <SectionLabel text="Featured Projects" />
+            <SectionLabel text="Our Projects" />
             <h2 className="text-3xl md:text-5xl font-light">Selected Works</h2>
           </div>
           <div className="hidden md:flex gap-2">
@@ -436,59 +554,21 @@ export default function App() {
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* --- The Viyaa Edge / Pillars --- */}
-      <section id="edge" className="bg-stone-100 py-24 md:py-32">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div>
-              <SectionLabel text="The Viyaa Edge" />
-              <h2 className="text-4xl md:text-6xl font-light leading-tight mb-8">
-                Built on Four <br/>
-                <span className="font-serif italic">Immovable Pillars.</span>
-              </h2>
-              <div className="space-y-6 font-serif">
-                {[
-                  { title: 'Harmonious Design', desc: 'Architecture that is rooted in its surroundings—responding to climate, landscape, and context. Calm, intuitive, and timeless, our designs belong naturally to the place they stand in.' },
-                  { title: 'Functional Spaces', desc: 'Spaces planned with clarity and purpose—well-proportioned, practical, and naturally comfortable—supporting effortless day-to-day living without compromise.' },
-                  { title: 'Material Honesty', desc: 'An authentic approach to materials. Concrete is expressed as concrete. Wood is used as wood. Every finish is chosen for its natural character, durability, and timeless appeal—never imitation.' },
-                  { title: 'Integrity', desc: 'Integrity underpins every stage of our process—from land procurement and legal diligence to design development and on-ground execution.' }
-                ].map((pillar, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex gap-4"
-                  >
-                    <div className="text-xl font-serif italic text-stone-300">0{i+1}</div>
-                    <div>
-                      <h4 className="font-bold text-stone-900 mb-1">{pillar.title}</h4>
-                      <p className="text-sm text-stone-600 leading-relaxed text-justify">{pillar.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-               <img 
-                 src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop" 
-                 alt="Modern Interior"
-                 className="w-full shadow-2xl"
-               />
-               <div className="absolute -bottom-8 -left-8 bg-white p-8 shadow-xl max-w-xs hidden md:block">
-                 <p className="font-serif text-xl italic text-stone-800 mb-2">"True luxury lives at the intersection of nature, thoughtful design, and human connection."</p>
-                 <p className="text-xs font-bold uppercase tracking-widest text-stone-400"></p>
-               </div>
-            </div>
-          </div>
+        
+        {/* Scroll Down Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => document.getElementById('founders').scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity text-stone-800"
+          >
+            SCROLL DOWN
+            <ArrowRight className="w-4 h-4 rotate-90" />
+          </button>
         </div>
       </section>
 
  {/* --- Founder's Notes Section --- */}
-      <section className="py-24 md:py-32 px-6 md:px-12 max-w-7xl mx-auto bg-stone-50">
+      <section id="founders" className="py-24 md:py-32 px-6 md:px-12 max-w-7xl mx-auto bg-stone-50">
         <div className="mb-16 text-center">
           <h2 className="text-3xl md:text-5xl font-light">Founder's Note</h2>
         </div>
@@ -537,7 +617,7 @@ export default function App() {
                 This vision found its perfect balance through my wife, Ankita Jain Das, who has led an architectural and interior design consultancy for nearly eighteen years. Our shared appreciation for thoughtful design and well-crafted spaces laid the foundation for <span className="font-serif italic font-bold text-stone-800">Viyaa Estates</span>.
               </p>
               <p>
-                 <span className="font-serif italic font-bold text-stone-800">Viyaa</span>, the brand represents a harmonious connection between <span className="font-serif italic font-bold text-stone-800">nature</span>, <span className="font-serif italic font-bold text-stone-800">space</span>, and <span className="font-serif italic font-bold text-stone-800">people</span>. This philosophy guides everything we do, as we create homes that are aesthetically refined, intelligently designed, and rooted in a genuine sense of place. From land selection to execution and delivery, we maintain uncompromising standards. Every project is developed on <span className="font-serif italic font-bold text-stone-800">land</span> with clear legal title and constructed using <span className="font-serif italic font-bold text-stone-800">high-quality materials</span> and <span className="font-serif italic font-bold text-stone-800">trusted brands</span>.
+                 <span className="font-serif italic font-bold text-stone-800">Viyaa</span>, the brand represents a harmonious connection between <span className="font-serif italic font-bold text-stone-800">nature</span>, <span className="font-serif italic font-bold text-stone-800">space</span>, and <span className="font-serif italic font-bold text-stone-800">people</span>. This philosophy guides everything we do, as we create homes that are aesthetically refined, intelligently designed, and rooted in a genuine sense of place. From land selection to execution and delivery, we maintain uncompromising standards. Every project is developed on land with clear legal title and constructed using <span className="font-serif italic font-bold text-stone-800">high-quality materials</span> and <span className="font-serif italic font-bold text-stone-800">trusted brands</span>.
               </p>
             </div>
             
@@ -628,6 +708,17 @@ export default function App() {
             </div>
           </div>
         </motion.div>
+        
+        {/* Scroll Down Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => document.getElementById('enquire').scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-3 text-xs tracking-widest font-bold cursor-pointer hover:opacity-70 transition-opacity text-stone-800"
+          >
+            {/* SCROLL DOWN */}
+            {/* <ArrowRight className="w-4 h-4 rotate-90" /> */}
+          </button>
+        </div>
       </section>
 
       {/* --- Contact / Footer --- */}
@@ -644,7 +735,10 @@ export default function App() {
               <p className="text-stone-400 mb-8 max-w-md">
                 Minimal, premium, elemental, eternal. Homes crafted to stand strong beyond trends.
               </p>
-              <button className="bg-white text-stone-900 px-8 py-4 rounded-full font-bold text-xs tracking-widest hover:bg-stone-200 transition-colors flex items-center gap-2">
+              <button 
+                onClick={() => setShowEnquireModal(true)}
+                className="bg-white text-stone-900 px-8 py-4 rounded-full font-bold text-xs tracking-widest hover:bg-stone-200 transition-colors flex items-center gap-2"
+              >
                 ENQUIRE NOW <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -665,7 +759,7 @@ export default function App() {
                   <Phone className="w-4 h-4" /> Call Us
                 </h4>
                 <p className="text-sm leading-relaxed">
-                  +91 9810152674<br/>
+                  +91 9810955103<br/>
                 </p>
               </div>
               <div>
@@ -689,8 +783,38 @@ export default function App() {
             </div>
           </div>
 
+          {/* Partner With Us section */}
+          <div id="partner" className="border-t border-stone-800 pt-8">
+             <div className="flex flex-col md:flex-row justify-between items-center mb-16">
+                <h3 className="text-2xl font-light text-white mb-4 md:mb-0">Interested in Partnering?</h3>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setShowPartnerModal(true)}
+                    className="px-6 py-3 border border-stone-700 rounded-full text-xs hover:bg-stone-800 transition-colors"
+                  >
+                    Channel Partner
+                  </button>
+                  <button 
+                    onClick={() => setShowPartnerModal(true)}
+                    className="px-6 py-3 border border-stone-700 rounded-full text-xs hover:bg-stone-800 transition-colors"
+                  >
+                    Collaborate
+                  </button>
+                </div>
+             </div>
+          </div>
+
+          {/* Copyright and Social Media */}
           <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-stone-500 uppercase tracking-widest">
-            <p>© 2010 AJDA Group Company. All rights reserved.</p>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <p>© 2010 AJDA Group Company. All rights reserved.</p>
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-stone-400 hover:text-white transition-colors underline"
+              >
+                Terms of Use
+              </button>
+            </div>
             <div className="flex gap-6 mt-4 md:mt-0">
               {/* Instagram */}
               <a href="https://www.instagram.com/viyaa_estates/" className="hover:opacity-70 transition-opacity" aria-label="Instagram">
@@ -754,20 +878,209 @@ export default function App() {
               </a>
             </div>
           </div>
-          
-          {/* Partner With Us mini section in footer */}
-          <div id="partner" className="mt-16 pt-16 border-t border-stone-800/50">
-             <div className="flex flex-col md:flex-row justify-between items-center">
-                <h3 className="text-2xl font-light text-white mb-4 md:mb-0">Interested in Partnering?</h3>
-                <div className="flex gap-4">
-                  <button className="px-6 py-3 border border-stone-700 rounded-full text-xs hover:bg-stone-800 transition-colors">Channel Partner</button>
-                  <button className="px-6 py-3 border border-stone-700 rounded-full text-xs hover:bg-stone-800 transition-colors">Collaborate</button>
-                </div>
-             </div>
-          </div>
 
         </div>
       </footer>
+
+      {/* Enquire Now Modal */}
+      <AnimatePresence>
+        {showEnquireModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowEnquireModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-stone-100 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-3xl font-light text-stone-900">Enquire Now</h2>
+                  <button onClick={() => setShowEnquireModal(false)} className="text-stone-600 hover:text-stone-900">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <p className="text-stone-600 mb-8">Complete the form below and our representative will contact you shortly.</p>
+                
+                <form onSubmit={handleEnquireSubmit} className="space-y-4">
+                  <input type="text" name="user_name" placeholder="Name*" required className="w-full px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 bg-white" />
+                  <input type="email" name="user_email" placeholder="Email*" required className="w-full px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 bg-white" />
+                  <div className="flex gap-2">
+                    <select name="country_code" className="px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 bg-white">
+                      <option>🇮🇳 +91</option>
+                    </select>
+                    <input type="tel" name="user_phone" placeholder="Phone*" required className="flex-1 px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 bg-white" />
+                  </div>
+                  <select name="hear_about" className="w-full px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 text-stone-600 bg-white">
+                    <option value="">How did you hear about us?</option>
+                    <option>Social Media</option>
+                    <option>Google Search</option>
+                    <option>Friend/Family</option>
+                    <option>Real Estate Agent</option>
+                    <option>Advertisement</option>
+                    <option>Other</option>
+                  </select>
+                  <textarea name="message" placeholder="Message*" rows="4" required className="w-full px-4 py-3 border border-stone-300 rounded focus:outline-none focus:border-stone-600 resize-none bg-white"></textarea>
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-stone-800 text-white py-3 rounded-full font-bold text-sm tracking-widest hover:bg-stone-700 transition-colors disabled:opacity-50">
+                    {isSubmitting ? 'SENDING...' : 'SUBMIT'}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Partner Modal */}
+      <AnimatePresence>
+        {showPartnerModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowPartnerModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-stone-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-3xl font-light text-white">Partner With Us</h2>
+                    <p className="text-stone-400 mt-2">Join us as a Channel Partner or Investor</p>
+                  </div>
+                  <button onClick={() => setShowPartnerModal(false)} className="text-stone-400 hover:text-white">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <form onSubmit={handlePartnerSubmit} className="space-y-4">
+                  <select name="partner_type" required className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded focus:outline-none focus:border-stone-500 text-white">
+                    <option value="">Are you a channel partner or an investor?*</option>
+                    <option>Channel Partner</option>
+                    <option>Investor</option>
+                  </select>
+                  <input type="text" name="user_name" placeholder="Your Name*" required className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded focus:outline-none focus:border-stone-500 text-white placeholder-stone-400" />
+                  <input type="text" name="firm_name" placeholder="Your Firm Name*" required className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded focus:outline-none focus:border-stone-500 text-white placeholder-stone-400" />
+                  <input type="tel" name="contact_number" placeholder="Contact Number*" required className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded focus:outline-none focus:border-stone-500 text-white placeholder-stone-400" />
+                  <input type="email" name="user_email" placeholder="Email ID*" required className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded focus:outline-none focus:border-stone-500 text-white placeholder-stone-400" />
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-white text-stone-900 py-3 rounded-full font-bold text-sm tracking-widest hover:bg-stone-200 transition-colors disabled:opacity-50">
+                    {isSubmitting ? 'SENDING...' : 'SUBMIT'}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Terms of Use Modal */}
+      <AnimatePresence>
+        {showTermsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowTermsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
+                  <h2 className="text-3xl font-light text-stone-900">Terms of Use</h2>
+                  <button onClick={() => setShowTermsModal(false)} className="text-stone-600 hover:text-stone-900">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <div className="space-y-6 text-stone-700 text-sm leading-relaxed text-justify">
+                  <p className="text-lg font-medium font-semibold">Please read these Terms of Use carefully before accessing or using this website.</p>
+                  
+                  <p className='font-serif'>This website is owned and operated by AJDA Realty, the parent firm of Viyaa Estates, a partnership firm incorporated under the laws of India, having its registered office at A106, 3rd Floor, Okhla Phase 2, New Delhi – 110020 ("Company", "we", "us", or "our").</p>
+                  
+                  <p className='font-serif'>These Terms of Use govern your access to and use of https://viyaaestates.com ("Website"). By accessing, browsing, or using this Website, you agree to be bound by these Terms of Use, our Privacy Policy, and all applicable laws and regulations of India. If you do not agree to these Terms, you must discontinue use of the Website immediately.</p>
+                  
+                  <p className='font-serif'>Your use of this Website is voluntary and at your own initiative, and you are solely responsible for compliance with applicable local, state, and national laws.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">NATURE OF INFORMATION / NO OFFER</h3>
+                  <p className='font-serif'>All information, images, visuals, layouts, specifications, plans, designs, amenities, descriptions, pricing, and other details displayed on this Website are indicative in nature and are provided for general informational purposes only.</p>
+                  
+                  <p className='font-serif'>Nothing contained on this Website shall be construed as: an offer to sell, an invitation to offer, a legally binding commitment, or a solicitation to invest or purchase any real estate project or property.</p>
+                  
+                  <p className='font-serif'>Any sale, booking, or allotment of real estate shall be governed solely by the terms and conditions set out in the Application Form, Agreement for Sale, and other definitive legal documents, as executed between the parties.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">RERA & STATUTORY COMPLIANCE DISCLAIMER</h3>
+                  <p className='font-serif'>Where applicable, real estate projects shall be developed and marketed in accordance with the Real Estate (Regulation and Development) Act, 2016 (RERA) and the rules framed thereunder. Details required to be disclosed under RERA shall be made available through appropriate statutory channels.</p>
+                  
+                  <p className='font-serif'>The Company does not guarantee that all projects displayed on this Website are currently registered under RERA unless specifically stated.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">PRIVACY POLICY</h3>
+                  <p className='font-serif'>Any personal information provided by you through this Website shall be collected, stored, and processed strictly in accordance with our Privacy Policy and applicable data protection laws in India.</p>
+                  
+                  <p className='font-serif'>We do not sell, rent, or trade your personal information to third parties. Information may be shared only where necessary to respond to an enquiry or where disclosure is required under law.</p>
+                  
+                  <p className='font-serif'>While reasonable security measures are implemented, no electronic transmission or storage system is completely secure. AJDA Realty shall not be liable for unauthorized access, data loss, or cyber incidents beyond its reasonable control.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">INTELLECTUAL PROPERTY RIGHTS</h3>
+                  <p className='font-serif'>All content on this Website, including but not limited to text, images, drawings, layouts, videos, logos, trademarks, trade names, designs, graphics, and overall presentation, is the exclusive property of AJDA Realty, Viyaa Estates, or their licensors, and is protected under applicable intellectual property laws in India.</p>
+                  
+                  <p className='font-serif'>No license or right is granted to you to use, reproduce, distribute, modify, or exploit any content without prior written consent. Unauthorized use may result in civil and criminal liability.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">WEBSITE AVAILABILITY & MODIFICATIONS</h3>
+                  <p className='font-serif'>The Company reserves the right to: modify, update, or remove any content on the Website; suspend or discontinue the Website (temporarily or permanently); restrict or terminate access without prior notice.</p>
+                  
+                  <p className='font-serif'>The Company shall not be liable for any interruption, suspension, or unavailability of the Website.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">THIRD-PARTY LINKS</h3>
+                  <p className='font-serif'>This Website may contain links to third-party websites for convenience. AJDA Realty does not control, endorse, or assume responsibility for the content, policies, or practices of such websites. Accessing third-party websites is entirely at your own risk.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">NO WARRANTY</h3>
+                  <p className='font-serif'>The Website and its contents are provided on an "as is" and "as available" basis. The Company expressly disclaims all warranties, whether express or implied, including but not limited to warranties of accuracy, completeness, merchantability, fitness for a particular purpose, or non-infringement.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">LIMITATION OF LIABILITY</h3>
+                  <p className='font-serif'>To the maximum extent permitted by law, AJDA Realty, its partners, employees, consultants, agents, affiliates, and group companies shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of or related to: use or inability to use the Website; reliance on any information provided herein; errors, omissions, delays, or inaccuracies; loss of data, profits, business opportunities, or goodwill.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">INDEMNITY</h3>
+                  <p className='font-serif'>You agree to indemnify and hold harmless AJDA Realty, its partners, employees, and affiliates from any claims, damages, losses, liabilities, or expenses arising out of: your use of the Website; violation of these Terms; violation of applicable laws or third-party rights.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">GOVERNING LAW & JURISDICTION</h3>
+                  <p className='font-serif'>These Terms shall be governed by and construed in accordance with the laws of India. All disputes arising out of or relating to the use of this Website shall be subject to the exclusive jurisdiction of the courts at New Delhi, India, without prejudice to the Company's right to initiate proceedings in any other competent jurisdiction.</p>
+                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b"></div>
+                  <h3 className="text-lg font-semibold text-stone-900 mt-6">CHANGES TO TERMS</h3>
+                  <p className='font-serif'>The Company may revise these Terms of Use at any time without prior notice. Continued use of the Website constitutes acceptance of the revised Terms.</p>
+                </div>
+                
+                <div className="mt-8 pt-6 ">
+                  <button 
+                    onClick={() => setShowTermsModal(false)}
+                    className="w-full bg-stone-800 text-white py-3 rounded-full font-bold text-sm tracking-widest hover:bg-stone-700 transition-colors"
+                  >
+                    CLOSE
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
