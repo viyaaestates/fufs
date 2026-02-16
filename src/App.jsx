@@ -148,6 +148,8 @@ export default function App() {
   const [showEnquireModal, setShowEnquireModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form submission handlers
@@ -162,11 +164,13 @@ export default function App() {
         e.target,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
-      alert('Thank you! Your enquiry has been submitted successfully.');
+      setSuccessMessage('Thank you! Your enquiry has been submitted successfully. Our team will contact you shortly.');
+      setShowSuccessModal(true);
       setShowEnquireModal(false);
       e.target.reset();
     } catch (error) {
-      alert('Sorry, something went wrong. Please try again or contact us directly.');
+      setSuccessMessage('Sorry, something went wrong. Please try again or contact us directly at info@viyaaestates.com');
+      setShowSuccessModal(true);
       console.error('EmailJS Error:', error);
     } finally {
       setIsSubmitting(false);
@@ -184,11 +188,13 @@ export default function App() {
         e.target,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
-      alert('Thank you! Your partnership request has been submitted successfully.');
+      setSuccessMessage('Thank you! Your partnership request has been submitted successfully. We will review your application and get back to you soon.');
+      setShowSuccessModal(true);
       setShowPartnerModal(false);
       e.target.reset();
     } catch (error) {
-      alert('Sorry, something went wrong. Please try again or contact us directly.');
+      setSuccessMessage('Sorry, something went wrong. Please try again or contact us directly at info@viyaaestates.com');
+      setShowSuccessModal(true);
       console.error('EmailJS Error:', error);
     } finally {
       setIsSubmitting(false);
@@ -272,7 +278,7 @@ export default function App() {
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover md:object-cover object-center"
           >
             <source src="/videos/viya.mp4" type="video/mp4" />
           </motion.video>
@@ -281,17 +287,17 @@ export default function App() {
 
 
         {/* Hero Footer Content */}
-        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 flex flex-col md:flex-row justify-between items-end text-white">
+        <div className="absolute bottom-0 left-0 w-full p-4 md:p-12 flex flex-col md:flex-row justify-between items-end text-white">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-md mb-6 md:mb-0"
+            className="max-w-md mb-4 md:mb-0"
           >
-            <p className="text-me font-semibold leading-relaxed opacity-90 ">
-              <span className="whitespace-nowrap text-me">Spaces envisioned with refined aesthetics and intelligent design, crafted to elevate everyday happiness.</span> <br className="hidden md:block" />
+            <h1 className="text-xs md:text-base font-semibold leading-relaxed opacity-90">
+              Spaces envisioned with refined aesthetics and intelligent design, crafted to elevate everyday happiness. <br className="hidden md:block" />
               Not built to impress — built to endure.
-            </p>
+            </h1>
           </motion.div>
 
           <motion.div
@@ -322,7 +328,7 @@ export default function App() {
             </motion.h2>
             <motion.div 
               initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
-              className="w-24 h-24 rounded-full border border-stone-300 flex items-center justify-center p-4 text-center text-[10px] uppercase tracking-widest leading-tight text-stone-500"
+              className="hidden md:flex w-24 h-24 rounded-full border border-stone-300 items-center justify-center p-4 text-center text-[10px] uppercase tracking-widest leading-tight text-stone-500"
             >
               Est. 2010<br/>Group
             </motion.div>
@@ -366,6 +372,13 @@ export default function App() {
                   <p className="text-[10px] text-white/70">©Viyaa Estates</p>
                 </div>
               </div>
+              {/* Mobile circle - shown only on mobile */}
+              <motion.div 
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
+                className="md:hidden w-24 h-24 rounded-full border border-stone-300 flex items-center justify-center p-4 text-center text-[10px] uppercase tracking-widest leading-tight text-stone-500 mt-6 mx-auto"
+              >
+                Est. 2010<br/>Group
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -397,7 +410,8 @@ export default function App() {
                   { title: 'Harmonious Design', desc: 'Architecture that is rooted in its surroundings—responding to climate, landscape, and context. Calm, intuitive, and timeless, our designs belong naturally to the place they stand in.' },
                   { title: 'Functional Spaces', desc: 'Spaces planned with clarity and purpose—well-proportioned, practical, and naturally comfortable—supporting effortless day-to-day living without compromise.' },
                   { title: 'Material Honesty', desc: 'An authentic approach to materials. Concrete is expressed as concrete. Wood is used as wood. Every finish is chosen for its natural character, durability, and timeless appeal—never imitation.' },
-                  { title: 'Integrity', desc: 'Integrity underpins every stage of our process—from land procurement and legal diligence to design development and on-ground execution.' }
+                  { title: 'Integrity and Transparency', desc: 'Integrity and transparency are the foundation of everything we build. From responsible land acquisition and legal diligence to design development and on-ground execution, we operate with complete openness and ethical discipline.Every commitment is documented, every approval verified—ensuring clarity, compliance, and confidence at every stage.' }
+                  
                 ].map((pillar, i) => (
                   <motion.div 
                     key={i}
@@ -422,8 +436,8 @@ export default function App() {
                  alt="Modern Interior"
                  className="w-full shadow-2xl"
                />
-               <div className="absolute -bottom-8 -left-8 bg-white p-8 shadow-xl max-w-xs hidden md:block">
-                 <p className="font-serif text-xl italic text-stone-800 mb-2">"True luxury lives at the intersection of nature, thoughtful design, and human connection."</p>
+               <div className="absolute -bottom-6 -left-4 md:-bottom-8 md:-left-8 bg-white p-4 md:p-8 shadow-xl max-w-[280px] md:max-w-xs">
+                 <p className="font-serif text-sm md:text-xl italic text-stone-800 mb-2">"True luxury lives at the intersection of nature, thoughtful design, and human connection."</p>
                  <p className="text-xs font-bold uppercase tracking-widest text-stone-400"></p>
                </div>
             </div>
@@ -605,7 +619,7 @@ export default function App() {
                 }} />
               </div>
               
-              <h3 className="text-3xl md:text-4xl font-serif italic mb-6 text-stone-900">Abhishek Das</h3>
+              <h3 className="text-2xl md:text-4xl font-serif italic mb-6 text-stone-900">Abhishek Das</h3>
             <div className="space-y-4 text-stone-600 font-serif leading-relaxed text-justify text-sm">
               <p>
                 My journey into real estate has been shaped as much by passion as by experience. After spending over sixteen years in the corporate world, I felt a growing pull towards building something more personal and enduring.
@@ -664,7 +678,7 @@ export default function App() {
                 }} />
               </div>
               
-              <h3 className="text-3xl md:text-4xl font-serif italic mb-6 text-stone-900">Ankita Jain Das</h3>
+              <h3 className="text-2xl md:text-4xl font-serif italic mb-6 text-stone-900">Ankita Jain Das</h3>
             <div className="space-y-4 text-stone-600 font-serif leading-relaxed text-justify text-sm">
               <p>
                 If Abhishek is the mind behind the company, I see myself as its heart. With over eighteen years of experience leading my own architectural and interior design consultancy, I have had the privilege of creating thoughtfully designed spaces for many discerning clients. The opportunity to now design and develop homes of our own—spaces that people can truly experience and call their own—has been deeply fulfilling.
@@ -1084,3 +1098,39 @@ export default function App() {
     </div>
   );
 }
+
+     
+//  {/* Success Modal */}
+//       <AnimatePresence>
+//         {showSuccessModal && (
+//           <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+//             onClick={() => setShowSuccessModal(false)}
+//           >
+//             <motion.div
+//               initial={{ scale: 0.8, opacity: 0, y: 20 }}
+//               animate={{ scale: 1, opacity: 1, y: 0 }}
+//               exit={{ scale: 0.8, opacity: 0, y: 20 }}
+//               onClick={(e) => e.stopPropagation()}
+//               className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl text-center"
+//             >
+//               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+//                 <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+//                 </svg>
+//               </div>
+//               <h3 className="text-2xl font-light text-stone-900 mb-3">Success!</h3>
+//               <p className="text-stone-600 mb-6 leading-relaxed">{successMessage}</p>
+//               <button 
+//                 onClick={() => setShowSuccessModal(false)}
+//                 className="w-full bg-stone-800 text-white py-3 rounded-full font-bold text-sm tracking-widest hover:bg-stone-700 transition-colors"
+//               >
+//                 CLOSE
+//               </button>
+//             </motion.div>
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
