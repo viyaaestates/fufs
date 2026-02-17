@@ -296,7 +296,7 @@ export default function App() {
             className="max-w-md mb-4 md:mb-0"
           >
             <h1 className="text-xs md:text-base font-semibold leading-relaxed opacity-90">
-              Spaces envisioned with refined aesthetics and intelligent design, crafted to elevate everyday happiness. <br className="hidden md:block" />
+              Luxury Villas in Goa - Spaces envisioned with refined aesthetics and intelligent design, crafted to elevate everyday happiness. <br className="hidden md:block" />
               Not built to impress — built to endure.
             </h1>
           </motion.div>
